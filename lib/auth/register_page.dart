@@ -41,7 +41,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   final _fullnameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _phonenumberController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -49,7 +48,6 @@ class _RegisterPageState extends State<RegisterPage> {
   void dispose() {
     _fullnameController.dispose();
     _emailController.dispose();
-    _phonenumberController.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -161,29 +159,6 @@ class _RegisterPageState extends State<RegisterPage> {
                               } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
                                   .hasMatch(value)) {
                                 return 'Please enter a valid email';
-                              }
-                              return null;
-                            },
-                          ),
-                          SizedBox(height: height * 0.02),
-                          TextFormField(
-                            controller: _phonenumberController,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(7),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 20),
-                              filled: true,
-                              fillColor: Color(0xffffffff),
-                              labelText: 'Phone Number',
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your phone number';
-                              } else if (!RegExp(r'^\+?[0-9]{10,13}$')
-                                  .hasMatch(value)) {
-                                return 'Please enter a valid phone number';
                               }
                               return null;
                             },
@@ -332,7 +307,6 @@ class _RegisterPageState extends State<RegisterPage> {
     if (_formKey.currentState!.validate()) {
       final String fullName = _fullnameController.text;
       final String email = _emailController.text;
-      final String phoneNumber = _phonenumberController.text;
       final String username = _usernameController.text;
       final String password = _passwordController.text;
 
@@ -351,7 +325,6 @@ class _RegisterPageState extends State<RegisterPage> {
               .set({
             'fullName': fullName,
             'email': email,
-            'phoneNumber': phoneNumber,
             'username': username,
             'avatarUrl': avatarUrl,
             'creationTime': user.metadata.creationTime?.toIso8601String(),

@@ -19,7 +19,6 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -46,7 +45,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         setState(() {
           fullNameController.text = userDoc['fullName'];
           emailController.text = userDoc['email'];
-          phoneController.text = userDoc['phoneNumber'];
           usernameController.text = userDoc['username'];
           _imageUrl = userDoc['imageUrl'];
         });
@@ -154,22 +152,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                   h(20),
                   TextFormField(
-                    controller: phoneController,
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your phone number';
-                      } else if (!RegExp(r'^\+?[0-9]{7,15}$').hasMatch(value)) {
-                        return 'Please enter a valid phone number';
-                      }
-                      return null;
-                    },
-                  ),
-                  h(20),
-                  TextFormField(
                     controller: usernameController,
                     decoration: InputDecoration(
                       labelText: 'Username',
@@ -215,7 +197,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 await _auth.updateUserProfile(
                                   fullNameController.text,
                                   emailController.text,
-                                  phoneController.text,
                                   usernameController.text,
                                   passwordController.text,
                                   imageUrl: _imageUrl,

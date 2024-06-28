@@ -66,7 +66,6 @@ class AuthService {
   Future<void> updateUserProfile(
     String fullName,
     String email,
-    String phoneNumber,
     String username,
     String password, {
     String? imageUrl,
@@ -82,7 +81,6 @@ class AuthService {
             .update({
           'fullName': fullName,
           'email': email,
-          'phoneNumber': phoneNumber,
           'username': username,
           if (imageUrl != null) 'imageUrl': imageUrl,
         });

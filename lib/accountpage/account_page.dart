@@ -88,16 +88,6 @@ class _AccountPageState extends State<AccountPage> {
                     grey600,
                   ),
                 ),
-                Text(
-                  userData?['phoneNumber'] ??
-                      user?.phoneNumber ??
-                      'No Phone Number',
-                  style: customText(
-                    16,
-                    FontWeight.normal,
-                    grey600,
-                  ),
-                ),
                 h(40),
                 Card(
                   elevation: 6.0,
