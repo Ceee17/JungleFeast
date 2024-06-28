@@ -9,9 +9,6 @@ import 'package:uas/listdata/payment_list_data.dart';
 import 'package:uas/models/CartFood.dart';
 import 'package:uas/paymentpage/success_page.dart';
 import 'package:uas/widgets/button.dart';
-import 'package:midtrans_sdk/midtrans_sdk.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart' as dot_env;
-import 'package:uas/services/token_service.dart';
 
 class PaymentPage extends StatefulWidget {
   final String totalPrice;
@@ -26,14 +23,6 @@ class PaymentPage extends StatefulWidget {
     required this.zoneItems,
     required this.sourcePage,
   });
-  // : assert(
-  //           (sourcePage == 'ticket' &&
-  //                   zoneItems != null &&
-  //                   cartItems == null) ||
-  //               (sourcePage != 'ticket' &&
-  //                   cartItems != null &&
-  //                   zoneItems == null),
-  //           'For tickets, zoneItems must be provided and cartItems must be null. For non-tickets, cartItems must be provided and zoneItems must be null.');
 
   @override
   State<PaymentPage> createState() => _PaymentPageState();
@@ -42,7 +31,6 @@ class PaymentPage extends StatefulWidget {
 class _PaymentPageState extends State<PaymentPage> {
   int _selectedPaymentMethod = 1;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  MidtransSDK? _midtrans;
   late double parsedTotalPrice = double.tryParse(
           widget.totalPrice.replaceAll(',', '').replaceAll('.', '')) ??
       0.0;
@@ -55,30 +43,8 @@ class _PaymentPageState extends State<PaymentPage> {
   @override
   void initState() {
     super.initState();
-    _initSDK();
     _calculatePrices();
     _calculateTotalQuantity();
-  }
-
-  void _initSDK() async {
-    _midtrans = await MidtransSDK.init(
-      config: MidtransConfig(
-        clientKey: dot_env.dotenv.env['MIDTRANS_CLIENT_KEY'] ?? "",
-        merchantBaseUrl: "",
-        colorTheme: ColorTheme(
-          colorPrimary: Colors.blue,
-          colorPrimaryDark: Colors.blue,
-          colorSecondary: Colors.blue,
-        ),
-      ),
-    );
-    _midtrans?.setUIKitCustomSetting(
-      skipCustomerDetailsPages: true,
-    );
-    _midtrans!.setTransactionFinishedCallback((result) {
-      _showToast('Transaction Completed', false);
-      _handleSuccessfulPayment();
-    });
   }
 
   double _calculatePrices() {
@@ -346,114 +312,59 @@ class _PaymentPageState extends State<PaymentPage> {
     if (user != null) {
       final userId = user.uid;
       final paymentMethodLabel = _getPaymentMethodLabel(_selectedPaymentMethod);
-      if (_selectedPaymentMethod == 8) {
-        // Midtrans
-        if (widget.sourcePage == 'ticket') {
-          totalZonePrice = widget.zoneItems
-              .fold(0.0, (sum, item) => sum + (item['totalPrice'] as num));
-          totalZoneQuantity = widget.zoneItems
-              .fold(0, (sum, item) => sum + (item['totalCount'] as int));
+      final historyData = {
+        'userId': userId,
+        'paymentMethod': paymentMethodLabel,
+        'items': widget.sourcePage == 'ticket'
+            ? widget.zoneItems
+                .map((item) => {
+                      'title': item['title'],
+                      'selectedDate': item['selectedDate'],
+                      'adultCount': item['adultCount'],
+                      'kidsCount': item['kidsCount'],
+                      'adultPrice': item['adultPrice'],
+                      'kidsPrice': item['kidsPrice'],
+                      'totalPrice': item['totalPrice'],
+                      'totalCount': item['totalCount'],
+                      'category': item['category'],
+                    })
+                .toList()
+            : widget.cartItems
+                .map((item) => {
+                      'name': item.name,
+                      'price': item.price,
+                      'quantity': item.quantity,
+                      'imageUrl': item.imageUrl,
+                      'foodZone': item.foodZone,
+                      'category': item.category,
+                    })
+                .toList(),
+        'totalPrice': widget.totalPrice,
+        'finalPrice': numberFormat.format(finalPrice),
+        'date': Timestamp.now(),
+      };
 
-          double totalPrice = totalZonePrice + (totalZonePrice * 0.1);
+      await FirebaseFirestore.instance.collection('history').add(historyData);
 
-          final result = await TokenService().getToken(
-            widget.zoneItems.isNotEmpty
-                ? widget.zoneItems[0]['title']
-                : "Product",
-            totalPrice,
-            1,
-          );
+      setState(() {
+        tempFoodCart.removeWhere(
+            (item) => item.foodZone == widget.cartItems[0].foodZone);
+        widget.cartItems.clear();
+      });
 
-          if (result.isRight()) {
-            String? token = result.fold((l) => null, (r) => r.token);
-            if (token == null) {
-              _showToast('Token cannot be null', true);
-              return;
-            }
-            _midtrans?.startPaymentUiFlow(
-              token: token,
-            );
-          } else {
-            _showToast('Transaction Failed', true);
-          }
-        } else {
-          totalZonePrice = 0.0;
-          totalZoneQuantity = 0;
+      Fluttertoast.showToast(
+        msg: "Payment Successful!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: green,
+        textColor: white,
+      );
 
-          final result = await TokenService().getToken(
-            widget.cartItems.isNotEmpty ? widget.cartItems[0].name : "Product",
-            this.finalPrice,
-            totalQuantity,
-          );
-
-          if (result.isRight()) {
-            String? token = result.fold((l) => null, (r) => r.token);
-            if (token == null) {
-              _showToast('Token cannot be null', true);
-              return;
-            }
-            _midtrans?.startPaymentUiFlow(
-              token: token,
-            );
-          } else {
-            _showToast('Transaction Failed', true);
-          }
-        }
-      } else {
-        final historyData = {
-          'userId': userId,
-          'paymentMethod': paymentMethodLabel,
-          'items': widget.sourcePage == 'ticket'
-              ? widget.zoneItems
-                  .map((item) => {
-                        'title': item['title'],
-                        'selectedDate': item['selectedDate'],
-                        'adultCount': item['adultCount'],
-                        'kidsCount': item['kidsCount'],
-                        'adultPrice': item['adultPrice'],
-                        'kidsPrice': item['kidsPrice'],
-                        'totalPrice': item['totalPrice'],
-                        'totalCount': item['totalCount'],
-                        'category': item['category'],
-                      })
-                  .toList()
-              : widget.cartItems
-                  .map((item) => {
-                        'name': item.name,
-                        'price': item.price,
-                        'quantity': item.quantity,
-                        'imageUrl': item.imageUrl,
-                        'foodZone': item.foodZone,
-                        'category': item.category,
-                      })
-                  .toList(),
-          'totalPrice': widget.totalPrice,
-          'finalPrice': numberFormat.format(finalPrice),
-          'date': Timestamp.now(),
-        };
-
-        await FirebaseFirestore.instance.collection('history').add(historyData);
-
-        setState(() {
-          tempFoodCart.removeWhere(
-              (item) => item.foodZone == widget.cartItems[0].foodZone);
-          widget.cartItems.clear();
-        });
-
-        Fluttertoast.showToast(
-          msg: "Payment Successful!",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.TOP,
-          backgroundColor: green,
-          textColor: white,
-        );
-
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SuccessPage(),
-            ));
-      }
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SuccessPage(),
+          ));
     }
   }
 
@@ -473,8 +384,6 @@ class _PaymentPageState extends State<PaymentPage> {
         return 'dana';
       case 7:
         return 'linkaja';
-      case 8:
-        return 'midtrans';
       default:
         return 'unknown';
     }
