@@ -34,7 +34,7 @@ class _OrderTicketPageState extends State<OrderTicketPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Featured',
+                'Most Picked',
                 style: headerText(18),
               ),
               h(10),
@@ -49,7 +49,8 @@ class _OrderTicketPageState extends State<OrderTicketPage> {
                         height: cardHeight,
                         child: GestureDetector(
                           onTap: () {
-                            showFeaturedDetails(context, data, data.title);
+                            showFeaturedDetails(
+                                context, data, data.title, 'ticketPage');
                           },
                           child: FeaturedCard(
                             data.imageUrl,
@@ -63,7 +64,7 @@ class _OrderTicketPageState extends State<OrderTicketPage> {
               ),
               h(20),
               Text(
-                'Most Picked',
+                'Ticket List',
                 style: headerText(18),
               ),
               h(10),

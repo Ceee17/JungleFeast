@@ -6,7 +6,7 @@ final List<Member> members = [
       id: '535220013',
       initials: 'JA',
       qrCodePath: 'assets/qrmember/linkJafier.png',
-      link: 'Discord : https://s.id/26VYj'),
+      link: 'LinkedIn : https://qrco.de/bfCClb'),
   Member(
       name: 'Nelson',
       id: '535220021',
@@ -18,17 +18,17 @@ final List<Member> members = [
       id: '535220023',
       initials: 'JC',
       qrCodePath: 'assets/qrmember/linkJC.png',
-      link: 'LinkedIn : https://s.id/26VY8'),
+      link: 'LinkedIn : https://qrco.de/bfCClF'),
   Member(
       name: 'Finnia Li',
       id: '535220030',
       initials: 'FL',
       qrCodePath: 'assets/qrmember/linkFinnia.png',
-      link: 'Instagram : https://s.id/26VYm'),
+      link: 'LinkedIn : https://qrco.de/bfCClV'),
   Member(
       name: 'Timoty Wahyudi P',
       id: '535220043',
       initials: 'TP',
       qrCodePath: 'assets/qrmember/linkTimot.png',
-      link: 'WhatsApp : https://s.id/26VYe'),
+      link: 'LinkedIn : https://qrco.de/bfBEe0'),
 ];

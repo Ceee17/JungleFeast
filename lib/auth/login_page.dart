@@ -235,7 +235,6 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
                       SizedBox(height: height * 0.05),
-                      Text('Copyright © 2024 SD-H USAI', style: copyrightText),
                     ],
                   ),
                 ),

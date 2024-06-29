@@ -93,14 +93,6 @@ class StartingPage extends StatelessWidget {
                 style: customText(22, FontWeight.w600, white),
               ),
             ),
-            const Spacer(),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                'Copyright © 2024 SD-H USAI',
-                style: copyrightText,
-              ),
-            ),
           ],
         ),
       ),

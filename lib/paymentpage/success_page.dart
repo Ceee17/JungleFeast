@@ -54,7 +54,6 @@ class SuccessPage extends StatelessWidget {
           Spacer(),
           Padding(
             padding: const EdgeInsets.only(bottom: 10.0),
-            child: Text('Copyright © 2024 SD-H USAI', style: copyrightText),
           ),
         ],
       ),

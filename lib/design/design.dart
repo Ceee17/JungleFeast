@@ -25,12 +25,6 @@ TextStyle startingText(double size, FontWeight fw) {
   );
 }
 
-TextStyle copyrightText = TextStyle(
-  fontSize: 12,
-  color: Colors.grey,
-  fontFamily: "Poppins",
-);
-
 TextStyle customText(double size, FontWeight weight, Color color) {
   return TextStyle(
     fontSize: size,
