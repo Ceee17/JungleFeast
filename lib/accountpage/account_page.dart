@@ -115,7 +115,10 @@ class _AccountPageState extends State<AccountPage> {
                       ),
                       Divider(),
                       ListTile(
-                        title: Text('Settings'),
+                        title: Text(
+                          'Delete My Account',
+                          style: TextStyle(color: red),
+                        ),
                         onTap: () {
                           // Navigate to Settings screen
                         },
@@ -131,6 +134,17 @@ class _AccountPageState extends State<AccountPage> {
                           await _auth.signout();
                           navigateToLoginPage(context);
                         },
+                      ),
+                      Divider(),
+                      ListTile(
+                        title: Text(
+                          'Delete My Account',
+                          style: TextStyle(color: red),
+                        ),
+                        onTap: () {
+                          // Navigate to Settings screen
+                        },
+                        enabled: false,
                       ),
                     ],
                   ),

@@ -43,11 +43,6 @@ class _AboutUsPage extends State<AboutUsPage> {
                 },
               ),
             ),
-            h(16.0),
-            Text(
-              'Copyright © 2024 SD-H USAI',
-              style: copyrightText,
-            ),
           ],
         ),
       ),

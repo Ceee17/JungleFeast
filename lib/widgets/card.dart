@@ -469,7 +469,7 @@ Widget FeaturedCard(String imageUrl, String title) {
           left: 16.0,
           child: Text(
             title,
-            style: cardText,
+            style: customText(16, FontWeight.bold, white),
           ),
         ),
       ],

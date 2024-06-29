@@ -173,7 +173,7 @@ void showZoneDetails(
     isScrollControlled: true,
     builder: (context) {
       return FractionallySizedBox(
-        heightFactor: 0.7,
+        heightFactor: 0.75,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -243,17 +243,18 @@ void showZoneDetails(
   );
 }
 
-void showFeaturedDetails(
-    BuildContext context, FeaturedCardData featured, String title) {
-  final formattedPrice =
-      NumberFormat.decimalPattern('id').format(featured.price);
+void showFeaturedDetails(BuildContext context, FeaturedCardData featured,
+    String title, String category) {
+  final formattedPrice = NumberFormat.decimalPattern('id');
+  final formattedStartPrice = formattedPrice.format(priceStart);
+  final formattedEndPrice = formattedPrice.format(priceEnd);
 
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     builder: (context) {
       return FractionallySizedBox(
-        heightFactor: 0.7,
+        heightFactor: 0.75,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -271,15 +272,43 @@ void showFeaturedDetails(
               h(20),
               Text(featured.title, style: clipText),
               h(14),
-              Text("Rp. $formattedPrice,00", style: priceText),
+              Text(
+                "Rp. $formattedStartPrice,00 - Rp. $formattedEndPrice,00",
+                style: priceText,
+              ),
               h(10),
               Text(featured.description, style: descText),
               const Spacer(),
               GestureDetector(
-                onTap: () {
-                  // showCalendarModal(context, title);
+                onTap: () async {
+                  DateTime? selectedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2100),
+                    selectableDayPredicate: (DateTime day) {
+                      return day.isAfter(
+                          DateTime.now().subtract(const Duration(days: 1)));
+                    },
+                    builder: (BuildContext context, Widget? child) {
+                      return Theme(
+                        data: ThemeData.light().copyWith(
+                          colorScheme: ColorScheme.light(
+                            primary: primaryColor,
+                            onPrimary: white,
+                            onSurface: black,
+                          ),
+                        ),
+                        child: child!,
+                      );
+                    },
+                  );
+                  if (selectedDate != null) {
+                    navigateToTicketOrderDetailPage(
+                        context, title, selectedDate, category);
+                  }
                 },
-                child: PrimaryBtn(featured.title),
+                child: PrimaryBtn('Select Date'),
               ),
             ],
           ),
