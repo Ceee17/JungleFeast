@@ -49,8 +49,8 @@ class _OrderTicketPageState extends State<OrderTicketPage> {
                         height: cardHeight,
                         child: GestureDetector(
                           onTap: () {
-                            showFeaturedDetails(
-                                context, data, data.title, 'ticketPage');
+                            showFeaturedDetails(context, data, data.title,
+                                'ticket', data.imageUrl);
                           },
                           child: FeaturedCard(
                             data.imageUrl,

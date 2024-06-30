@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uas/design/design.dart';
+import 'package:uas/historypage/history_page.dart';
 import 'package:uas/models/CartFood.dart';
 import 'package:uas/models/Food.dart';
 import 'package:uas/models/History.dart';
@@ -359,8 +360,10 @@ class HistoryItemCard extends StatelessWidget {
             child: Image.asset(historyItem.imageUrl, fit: BoxFit.contain),
           ),
         ),
-        subtitle: Text(
-            "${historyItem.date}\n${historyItem.finalPrice}\n${historyItem.paymentMethod}"),
+        subtitle: Text("${historyItem.date}\n${historyItem.finalPrice}"),
+        onTap: () {
+          showTransactionDetails(context, historyItem.transactionId);
+        },
       ),
     );
   }

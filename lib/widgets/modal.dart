@@ -162,8 +162,8 @@ void showFoodDetails(BuildContext context, Food food, String sourcePage) {
 }
 
 // ZONE DETAILS MODAL
-void showZoneDetails(
-    BuildContext context, Zone zone, String title, String category) {
+void showZoneDetails(BuildContext context, Zone zone, String title,
+    String category, String imageUrl) {
   final formattedPrice = NumberFormat.decimalPattern('id');
   final formattedStartPrice = formattedPrice.format(priceStart);
   final formattedEndPrice = formattedPrice.format(priceEnd);
@@ -230,7 +230,7 @@ void showZoneDetails(
                   );
                   if (selectedDate != null) {
                     navigateToTicketOrderDetailPage(
-                        context, title, selectedDate, category);
+                        context, title, selectedDate, category, imageUrl);
                   }
                 },
                 child: PrimaryBtn('Select Date'),
@@ -244,7 +244,7 @@ void showZoneDetails(
 }
 
 void showFeaturedDetails(BuildContext context, FeaturedCardData featured,
-    String title, String category) {
+    String title, String category, String imageUrl) {
   final formattedPrice = NumberFormat.decimalPattern('id');
   final formattedStartPrice = formattedPrice.format(priceStart);
   final formattedEndPrice = formattedPrice.format(priceEnd);
@@ -305,7 +305,7 @@ void showFeaturedDetails(BuildContext context, FeaturedCardData featured,
                   );
                   if (selectedDate != null) {
                     navigateToTicketOrderDetailPage(
-                        context, title, selectedDate, category);
+                        context, title, selectedDate, category, imageUrl);
                   }
                 },
                 child: PrimaryBtn('Select Date'),

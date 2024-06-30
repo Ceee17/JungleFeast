@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uas/accountpage/account_page.dart';
 import 'package:uas/design/design.dart';
 import 'package:uas/historypage/history_page.dart';
@@ -33,6 +34,21 @@ class _HomePageState extends State<HomePage> {
       });
     });
 
+    _checkIntroStatus();
+  }
+
+  Future<void> _checkIntroStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastShownDate = prefs.getString('intro_last_shown_date');
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+
+    if (lastShownDate != today) {
+      _showIntroModal();
+      await prefs.setString('intro_last_shown_date', today);
+    }
+  }
+
+  void _showIntroModal() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showIntroModal(context, vidController, _initializeVideoPlayerFuture);
     });
