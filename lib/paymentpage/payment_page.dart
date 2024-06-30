@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:uas/design/design.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:uas/listdata/food_data.dart';
-import 'package:uas/listdata/payment_list_data.dart';
 import 'package:uas/models/CartFood.dart';
-import 'package:uas/paymentpage/success_page.dart';
+import 'package:uas/routes.dart';
 import 'package:uas/widgets/button.dart';
 
 class PaymentPage extends StatefulWidget {
@@ -15,13 +11,15 @@ class PaymentPage extends StatefulWidget {
   final List<CartFood> cartItems;
   final List<Map<String, dynamic>> zoneItems;
   final String sourcePage;
+  final String transactionId;
 
-  PaymentPage({
+  const PaymentPage({
     super.key,
     required this.totalPrice,
     required this.cartItems,
     required this.zoneItems,
     required this.sourcePage,
+    required this.transactionId,
   });
 
   @override
@@ -29,16 +27,15 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _PaymentPageState extends State<PaymentPage> {
-  int _selectedPaymentMethod = 1;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   late double parsedTotalPrice = double.tryParse(
           widget.totalPrice.replaceAll(',', '').replaceAll('.', '')) ??
       0.0;
-  late double tax = parsedTotalPrice * 0.1;
+  late double tax = parsedTotalPrice * 0.11;
   late double finalPrice = _calculatePrices();
   late int totalQuantity;
   late double totalZonePrice = 0.0;
   late int totalZoneQuantity = 0;
+  late String transactionId = widget.transactionId;
 
   @override
   void initState() {
@@ -56,76 +53,6 @@ class _PaymentPageState extends State<PaymentPage> {
         widget.cartItems.fold(0, (sum, item) => sum + item.quantity);
   }
 
-  void _showToast(String msg, bool isError) {
-    Fluttertoast.showToast(
-      msg: msg,
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: isError ? Colors.red : Colors.green,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
-  }
-
-  void _handleSuccessfulPayment() {
-    User? user = _auth.currentUser;
-    final numberFormat =
-        NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0);
-
-    if (user != null) {
-      final userId = user.uid;
-      final paymentMethodLabel = _getPaymentMethodLabel(_selectedPaymentMethod);
-
-      final historyData = {
-        'userId': userId,
-        'paymentMethod': paymentMethodLabel,
-        'items': widget.sourcePage == 'ticket'
-            ? widget.zoneItems
-                .map((item) => {
-                      'title': item['title'],
-                      'selectedDate': item['selectedDate'],
-                      'adultCount': item['adultCount'],
-                      'kidsCount': item['kidsCount'],
-                      'adultPrice': item['adultPrice'],
-                      'kidsPrice': item['kidsPrice'],
-                      'totalPrice': item['totalPrice'],
-                      'totalCount': item['totalCount'],
-                      'category': item['category'],
-                    })
-                .toList()
-            : widget.cartItems
-                .map((item) => {
-                      'name': item.name,
-                      'price': item.price,
-                      'quantity': item.quantity,
-                      'imageUrl': item.imageUrl,
-                      'foodZone': item.foodZone,
-                      'category': item.category,
-                    })
-                .toList(),
-        'totalPrice': widget.totalPrice,
-        'finalPrice': numberFormat.format(finalPrice),
-        'date': Timestamp.now(),
-      };
-
-      FirebaseFirestore.instance.collection('history').add(historyData);
-
-      setState(() {
-        tempFoodCart.removeWhere(
-            (item) => item.foodZone == widget.cartItems[0].foodZone);
-        widget.cartItems.clear();
-      });
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SuccessPage(),
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -136,7 +63,7 @@ class _PaymentPageState extends State<PaymentPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Payment',
+          'Order Summary',
           style: appBar,
         ),
         centerTitle: true,
@@ -149,6 +76,35 @@ class _PaymentPageState extends State<PaymentPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Show this screen to our tenant!",
+                          style: warningText,
+                          textAlign: TextAlign.center,
+                        ),
+                        QrImageView(
+                          data: transactionId,
+                          version: QrVersions.auto,
+                          size: 200.0,
+                        ),
+                        Text(
+                          'Transaction ID',
+                          style: labelText,
+                          textAlign: TextAlign.center,
+                        ),
+                        h(4),
+                        Text(
+                          transactionId,
+                          style: labelText,
+                          textAlign: TextAlign.center,
+                        ),
+                        h(10),
+                      ],
+                    ),
+                  ),
                   Container(
                     padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
@@ -159,7 +115,7 @@ class _PaymentPageState extends State<PaymentPage> {
                           color: grey.withOpacity(0.2),
                           spreadRadius: 2,
                           blurRadius: 5,
-                          offset: Offset(0, 3),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
@@ -184,7 +140,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text('Subtotal'),
+                                      const Text('Subtotal'),
                                       Text(numberFormat
                                           .format(parsedTotalPrice)),
                                     ],
@@ -193,11 +149,11 @@ class _PaymentPageState extends State<PaymentPage> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text('Tax 10%'),
+                                      const Text('Tax 11%'),
                                       Text(numberFormat.format(tax)),
                                     ],
                                   ),
-                                  Divider(),
+                                  const Divider(),
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -219,62 +175,35 @@ class _PaymentPageState extends State<PaymentPage> {
                             ),
                           ],
                         ),
-                        h(16.0),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text(
-                            'Order details',
-                            style: linkText,
-                          ),
-                        ),
                       ],
                     ),
                   ),
                   h(16.0),
-                  Text('Payment Method', style: headerText(16)),
+                  Text('Order Details', style: headerText(16)),
                   Expanded(
-                    child: SingleChildScrollView(
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: paymentMethods.length,
-                        separatorBuilder: (context, index) => Divider(),
-                        itemBuilder: (context, index) {
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _selectedPaymentMethod =
-                                    paymentMethods[index]['value'] as int;
-                              });
-                            },
-                            child: ListTile(
-                              leading: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Radio(
-                                    value:
-                                        paymentMethods[index]['value'] as int,
-                                    groupValue: _selectedPaymentMethod,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedPaymentMethod = value as int;
-                                      });
-                                    },
-                                  ),
-                                  Image.asset(
-                                    paymentMethods[index]['image'] as String,
-                                    width: 30,
-                                  ),
-                                ],
-                              ),
-                              title: Text(
-                                  paymentMethods[index]['label'] as String),
-                            ),
+                    child: ListView.builder(
+                      itemCount: widget.sourcePage == 'ticket'
+                          ? widget.zoneItems.length
+                          : widget.cartItems.length,
+                      itemBuilder: (context, index) {
+                        if (widget.sourcePage == 'ticket') {
+                          final item = widget.zoneItems[index];
+                          return ListTile(
+                            leading: Image.asset(item['imageUrl']),
+                            title: Text(item['title']),
+                            subtitle: Text(
+                                'Price: Rp ${item['totalPrice']},00\nAdults: ${item['adultCount']}, Kids: ${item['kidsCount']}'),
                           );
-                        },
-                      ),
+                        } else {
+                          final item = widget.cartItems[index];
+                          return ListTile(
+                            leading: Image.asset(item.imageUrl),
+                            title: Text(item.name),
+                            subtitle: Text(
+                                'Price: Rp ${item.price},00\nQuantity: ${item.quantity}'),
+                          );
+                        }
+                      },
                     ),
                   ),
                 ],
@@ -288,7 +217,7 @@ class _PaymentPageState extends State<PaymentPage> {
               height: height * 0.06,
               child: ElevatedButton(
                 onPressed: () {
-                  _handleProceedPayment(context);
+                  navigateToHomePage(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
@@ -296,96 +225,12 @@ class _PaymentPageState extends State<PaymentPage> {
                     borderRadius: BorderRadius.circular(50),
                   ),
                 ),
-                child: PrimaryBtn('Proceed Payment'),
+                child: PrimaryBtn('Back to Home'),
               ),
             ),
           ),
         ],
       ),
     );
-  }
-
-  void _handleProceedPayment(BuildContext context) async {
-    final numberFormat =
-        NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0);
-    User? user = _auth.currentUser;
-    if (user != null) {
-      final userId = user.uid;
-      final paymentMethodLabel = _getPaymentMethodLabel(_selectedPaymentMethod);
-      final historyData = {
-        'userId': userId,
-        'paymentMethod': paymentMethodLabel,
-        'items': widget.sourcePage == 'ticket'
-            ? widget.zoneItems
-                .map((item) => {
-                      'title': item['title'],
-                      'selectedDate': item['selectedDate'],
-                      'adultCount': item['adultCount'],
-                      'kidsCount': item['kidsCount'],
-                      'adultPrice': item['adultPrice'],
-                      'kidsPrice': item['kidsPrice'],
-                      'totalPrice': item['totalPrice'],
-                      'totalCount': item['totalCount'],
-                      'category': item['category'],
-                    })
-                .toList()
-            : widget.cartItems
-                .map((item) => {
-                      'name': item.name,
-                      'price': item.price,
-                      'quantity': item.quantity,
-                      'imageUrl': item.imageUrl,
-                      'foodZone': item.foodZone,
-                      'category': item.category,
-                    })
-                .toList(),
-        'totalPrice': widget.totalPrice,
-        'finalPrice': numberFormat.format(finalPrice),
-        'date': Timestamp.now(),
-      };
-
-      await FirebaseFirestore.instance.collection('history').add(historyData);
-
-      setState(() {
-        tempFoodCart.removeWhere(
-            (item) => item.foodZone == widget.cartItems[0].foodZone);
-        widget.cartItems.clear();
-      });
-
-      Fluttertoast.showToast(
-        msg: "Payment Successful!",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        backgroundColor: green,
-        textColor: white,
-      );
-
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SuccessPage(),
-          ));
-    }
-  }
-
-  String _getPaymentMethodLabel(int method) {
-    switch (method) {
-      case 1:
-        return 'qris';
-      case 2:
-        return 'bca';
-      case 3:
-        return 'atm bersama';
-      case 4:
-        return 'gopay';
-      case 5:
-        return 'ovo';
-      case 6:
-        return 'dana';
-      case 7:
-        return 'linkaja';
-      default:
-        return 'unknown';
-    }
   }
 }

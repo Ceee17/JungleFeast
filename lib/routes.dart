@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uas/aboutus/about_us_page.dart';
 import 'package:uas/auth/login_page.dart';
 import 'package:uas/auth/register_page.dart';
+import 'package:uas/historypage/history_page.dart';
 import 'package:uas/homepage/home_page.dart';
 import 'package:uas/models/CartFood.dart';
 import 'package:uas/orderfoodpage/bird_zone_page.dart';
@@ -60,6 +61,14 @@ void navigateToOrderFoodPage(BuildContext context) {
   );
 }
 
+// HISTORY ROUTES
+void navigateToHistoryPage(BuildContext context) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => HistoryPage()),
+  );
+}
+
 // PROFILE ROUTES
 void navigateToLoginPage(BuildContext context) {
   Navigator.pushAndRemoveUntil(
@@ -77,8 +86,8 @@ void navigateToAboutUsPage(BuildContext context) {
 }
 
 // TICKET ROUTES
-void navigateToTicketOrderDetailPage(
-    BuildContext context, String title, DateTime date, String category) {
+void navigateToTicketOrderDetailPage(BuildContext context, String title,
+    DateTime date, String category, String imageUrl) {
   Navigator.push(
     context,
     MaterialPageRoute(
@@ -86,6 +95,7 @@ void navigateToTicketOrderDetailPage(
         title: title,
         selectedDate: date,
         category: category,
+        imageUrl: imageUrl,
       ),
     ),
   );
@@ -166,7 +176,7 @@ void navigateToForestCart(BuildContext context) {
 
 // PAYMENT ROUTES
 void navigateToPaymentPage(BuildContext context, String totalPrice,
-    List<Map<String, dynamic>> Items, String sourcePage) {
+    List<Map<String, dynamic>> Items, String sourcePage, String transactionId) {
   List<CartFood> cartItems = Items.map((item) {
     String name = item['name'] ?? 'Unknown';
     int price = item['price'] ?? 0;
@@ -192,7 +202,8 @@ void navigateToPaymentPage(BuildContext context, String totalPrice,
         totalPrice: totalPrice,
         cartItems: cartItems,
         zoneItems: [],
-        sourcePage: '',
+        sourcePage: sourcePage,
+        transactionId: transactionId,
       ),
     ),
   );

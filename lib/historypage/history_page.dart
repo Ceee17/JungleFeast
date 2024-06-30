@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:uas/design/design.dart';
 import 'package:uas/models/History.dart';
+import 'package:uas/widgets/button.dart';
 import 'package:uas/widgets/card.dart';
 
 class HistoryPage extends StatefulWidget {
@@ -103,11 +105,11 @@ class _HistoryPageState extends State<HistoryPage> {
                       }
                       return {
                         'imageUrl': imageUrl,
+                        'transactionId': doc['transactionId'] ?? '',
                         'title': items.isNotEmpty ? items[0]['name'] ?? '' : '',
                         'category':
                             items.isNotEmpty ? items[0]['category'] ?? '' : '',
                         'finalPrice': doc['finalPrice'] ?? '',
-                        'paymentMethod': doc['paymentMethod'] ?? '',
                         'date': (doc['date'] as Timestamp).toDate().toString(),
                       };
                     }).toList();
@@ -121,10 +123,10 @@ class _HistoryPageState extends State<HistoryPage> {
                       children: historyItems.map((item) {
                         HistoryItem historyItem = HistoryItem(
                           imageUrl: item['imageUrl']!,
+                          transactionId: item['transactionId']!,
                           title: item['title']!,
                           category: item['category']!,
                           finalPrice: item['finalPrice']!,
-                          paymentMethod: item['paymentMethod']!,
                           date: item['date']!,
                         );
                         return HistoryItemCard(historyItem: historyItem);
@@ -139,4 +141,47 @@ class _HistoryPageState extends State<HistoryPage> {
       ),
     );
   }
+}
+
+void showTransactionDetails(BuildContext context, String transactionId) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (context) {
+      return FractionallySizedBox(
+        heightFactor: 0.45,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: QrImageView(
+                  data: transactionId,
+                  version: QrVersions.auto,
+                  size: 200.0,
+                ),
+              ),
+              h(20),
+              Text(
+                "Transaction ID: $transactionId",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              // Add other details if needed
+              Spacer(),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: PrimaryBtn('Close'),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }
