@@ -5,6 +5,7 @@ import 'package:uas/accountpage/edit_profile_page.dart';
 import 'package:uas/auth/auth_service.dart';
 import 'package:uas/design/design.dart';
 import 'package:uas/routes.dart';
+import 'package:uas/widgets/dialog.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -113,17 +114,17 @@ class _AccountPageState extends State<AccountPage> {
                           navigateToAboutUsPage(context);
                         },
                       ),
-                      Divider(),
-                      ListTile(
-                        title: Text(
-                          'Delete My Account',
-                          style: TextStyle(color: red),
-                        ),
-                        onTap: () {
-                          // Navigate to Settings screen
-                        },
-                        enabled: false,
-                      ),
+                      // Divider(),
+                      // ListTile(
+                      //   title: Text(
+                      //     'Delete My Account',
+                      //     style: TextStyle(color: red),
+                      //   ),
+                      //   onTap: () {
+                      //     // Navigate to Settings screen
+                      //   },
+                      //   enabled: false,
+                      // ),
                       Divider(),
                       ListTile(
                         title: Text(
@@ -139,12 +140,49 @@ class _AccountPageState extends State<AccountPage> {
                       ListTile(
                         title: Text(
                           'Delete My Account',
-                          style: TextStyle(color: red),
+                          style: TextStyle(color: Colors.red),
                         ),
-                        onTap: () {
-                          // Navigate to Settings screen
+                        onTap: () async {
+                          if (user == null) {
+                            print("No user is signed in.");
+                            return;
+                          }
+
+                          if (user?.providerData.any((provider) =>
+                                  provider.providerId == 'google.com') ??
+                              false) {
+                            // Show confirmation dialog
+                            final confirmed =
+                                await showConfirmationDialog(context);
+                            if (confirmed ?? false) {
+                              // Reauthenticate with Google
+                              try {
+                                await _auth.reauthenticateWithGoogle();
+                                await _auth.deleteAccount();
+                                navigateToLoginPage(context);
+                              } catch (e) {
+                                print(
+                                    'Reauthentication with Google failed: $e');
+                              }
+                            }
+                          } else {
+                            // Show dialog for email and password input
+                            final credentials =
+                                await showReauthenticateDialog(context);
+                            if (credentials != null) {
+                              final email = credentials['email']!;
+                              final password = credentials['password']!;
+
+                              try {
+                                await _auth.reauthenticate(email, password);
+                                await _auth.deleteAccount();
+                                // Optionally, navigate the user to the login screen or display a message
+                              } catch (e) {
+                                print('Reauthentication failed: $e');
+                              }
+                            }
+                          }
                         },
-                        enabled: false,
                       ),
                     ],
                   ),

@@ -10,6 +10,7 @@ import 'package:uas/models/Member.dart';
 import 'package:uas/models/Review.dart';
 import 'package:uas/models/Zone.dart';
 import 'package:uas/routes.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // HOMEPAGE CARD
 class OrderCard extends StatelessWidget {
@@ -19,12 +20,12 @@ class OrderCard extends StatelessWidget {
   final VoidCallback? onPressed;
 
   const OrderCard({
-    Key? key,
+    super.key,
     this.icon,
     required this.label,
     this.image,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -567,7 +568,41 @@ class MemberCard extends StatelessWidget {
                   children: [
                     Image.asset(member.qrCodePath),
                     SizedBox(height: 16),
-                    Text(member.link),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (member.link.startsWith('LinkedIn :'))
+                          Image.asset(
+                            'assets/aboutus/linkedin.png',
+                            width: 30,
+                            height: 30,
+                          ),
+                        if (member.link.startsWith('Instagram :'))
+                          Image.asset(
+                            'assets/aboutus/instagram.png',
+                            width: 30,
+                            height: 30,
+                          ),
+                        SizedBox(width: 8),
+                        Flexible(
+                          child: GestureDetector(
+                            onTap: () async {
+                              final url = member.link.split(' : ')[1];
+                              final Uri urlParsed = Uri.parse(url);
+                              if (await canLaunchUrl(urlParsed)) {
+                                await launchUrl(urlParsed);
+                              } else {
+                                throw 'Could not launch $urlParsed';
+                              }
+                            },
+                            child: Text(
+                              member.link.split(' : ')[1],
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
                 actions: [
@@ -587,7 +622,7 @@ class MemberCard extends StatelessWidget {
             backgroundColor: primaryColor,
             child: Text(
               member.initials,
-              style: TextStyle(color: white),
+              style: TextStyle(color: Colors.white),
             ),
           ),
           title: Text(member.name),
