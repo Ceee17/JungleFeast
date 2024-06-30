@@ -19,6 +19,7 @@ class StartingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        padding: EdgeInsets.symmetric(vertical: 120),
         decoration: BoxDecoration(color: white),
         child: Column(
           children: [
@@ -76,7 +77,7 @@ class StartingPage extends StatelessWidget {
                     style: startingText(13, FontWeight.normal)),
               ],
             ),
-            h(40),
+            h(60),
             ElevatedButton(
               onPressed: () => _completeInitialSetup(context),
               style: ElevatedButton.styleFrom(
