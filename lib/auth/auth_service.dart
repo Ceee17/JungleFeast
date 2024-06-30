@@ -107,6 +107,58 @@ class AuthService {
     }
   }
 
+  Future<void> signout() async {
+    try {
+      await _auth.signOut();
+      await _googleSignIn.signOut(); // Clear Google sign-in session
+    } catch (e) {
+      log("Something went wrong");
+    }
+  }
+
+  Future<void> deleteAccount() async {
+    try {
+      User? user = _auth.currentUser;
+
+      // Delete user data from Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user?.uid)
+          .delete();
+
+      // Delete user account from Firebase Authentication
+      await user?.delete();
+
+      await signout();
+
+      log('User account deleted and signed out successfully');
+    } on FirebaseAuthException catch (e) {
+      log('Error deleting account: $e');
+      if (e.code == 'requires-recent-login') {
+        log('The user must reauthenticate before this operation can be executed.');
+      }
+    } catch (e) {
+      log('Error: $e');
+    }
+  }
+
+  Future<void> reauthenticateWithGoogle() async {
+    try {
+      final googleUser = await _googleSignIn.signIn();
+      final googleAuth = await googleUser?.authentication;
+
+      final cred = GoogleAuthProvider.credential(
+        idToken: googleAuth?.idToken,
+        accessToken: googleAuth?.accessToken,
+      );
+
+      await _auth.currentUser?.reauthenticateWithCredential(cred);
+      log('User reauthenticated with Google');
+    } catch (e) {
+      log('Reauthentication with Google failed: $e');
+    }
+  }
+
   Future<void> reauthenticate(String email, String password) async {
     try {
       User? user = _auth.currentUser;
@@ -115,15 +167,6 @@ class AuthService {
       await user?.reauthenticateWithCredential(credential);
     } catch (e) {
       log("Reauthentication failed: $e");
-    }
-  }
-
-  Future<void> signout() async {
-    try {
-      await _auth.signOut();
-      await _googleSignIn.signOut(); // Clear Google sign-in session
-    } catch (e) {
-      log("Something went wrong");
     }
   }
 }
