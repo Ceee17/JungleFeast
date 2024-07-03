@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:54392670266:android:d7e160b3e3f243c31acd03",
         "android_client_info": {
-          "package_name": "com.example.uas"
+          "package_name": "com.junglefeast"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "54392670266-j9o0tsoh25sb7b5quqfrc56dca22v1c6.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.uas",
+            "package_name": "com.junglefeast",
             "certificate_hash": "4216f077571bd07475a912fc2bedfa8499cc31bc"
           }
         },
@@ -42,7 +42,7 @@
               "client_id": "54392670266-shcn8m6ndb3lr67rssmv1a930po3rc79.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.uas"
+                "bundle_id": "com.junglefeast"
               }
             }
           ]

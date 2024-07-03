@@ -8,7 +8,7 @@
 PRODUCT_NAME = uas
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.uas
+PRODUCT_BUNDLE_IDENTIFIER = com.junglefeast
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2024 com.example. All rights reserved.

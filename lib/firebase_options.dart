@@ -67,9 +67,11 @@ class DefaultFirebaseOptions {
     messagingSenderId: '54392670266',
     projectId: 'junglefeast-17ddc',
     storageBucket: 'junglefeast-17ddc.appspot.com',
-    androidClientId: '54392670266-j9o0tsoh25sb7b5quqfrc56dca22v1c6.apps.googleusercontent.com',
-    iosClientId: '54392670266-shcn8m6ndb3lr67rssmv1a930po3rc79.apps.googleusercontent.com',
-    iosBundleId: 'com.example.uas',
+    androidClientId:
+        '54392670266-j9o0tsoh25sb7b5quqfrc56dca22v1c6.apps.googleusercontent.com',
+    iosClientId:
+        '54392670266-shcn8m6ndb3lr67rssmv1a930po3rc79.apps.googleusercontent.com',
+    iosBundleId: 'com.junglefeast',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
@@ -81,5 +83,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'junglefeast-17ddc.appspot.com',
     measurementId: 'G-53HKBSTG9G',
   );
-
 }
