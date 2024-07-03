@@ -36,6 +36,18 @@ class _AccountPageState extends State<AccountPage> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Container(
+            width: 200,
+            height: 200,
+            child: Image.asset(
+              'assets/junglefeast.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        leadingWidth: 80,
         title: Text(
           'Profile',
           style: appBar,

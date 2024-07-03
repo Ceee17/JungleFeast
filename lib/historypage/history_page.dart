@@ -52,6 +52,18 @@ class _HistoryPageState extends State<HistoryPage> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Container(
+            width: 200,
+            height: 200,
+            child: Image.asset(
+              'assets/junglefeast.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        leadingWidth: 80,
         title: Text(
           "History",
           style: appBar,
